@@ -87,7 +87,7 @@ int wmain(int argc, PWSTR argv[])
                     int returnValue = diskImageManager.MountIso();
                     if (ctx.m_verbose)
                     {
-                        wprintf(L"Mount return value = %d", returnValue);
+                        wprintf(L"Mount return value = %d\n", returnValue);
                     }
 
                     if (ctx.m_status.Succeeded())
@@ -105,7 +105,7 @@ int wmain(int argc, PWSTR argv[])
                     int returnValue = diskImageManager.DismountIso();
                     if (ctx.m_verbose)
                     {
-                        wprintf(L"Dismount return value = %d", returnValue);
+                        wprintf(L"Dismount return value = %d\n", returnValue);
                     }
                 }
                 break;
@@ -113,7 +113,7 @@ int wmain(int argc, PWSTR argv[])
                     ctx.m_driveLetter = diskImageManager.GetDriveLetter();
                     if (ctx.m_verbose)
                     {
-                        wprintf(L"Query drive letter = %d", ctx.m_driveLetter);
+                        wprintf(L"Query drive letter = %d\n", ctx.m_driveLetter);
                     }
                     break;
                 }

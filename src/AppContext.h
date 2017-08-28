@@ -12,6 +12,8 @@ public:
 
     AppContext()
     {
+        m_showHelp = false;
+        m_verbose = false;
         m_command = AppCommand::NotSet;
         m_driveLetter = INVALID_DRIVE_LETTER;
     }
@@ -30,12 +32,9 @@ public:
         {
             if (FileExists(m_isoPath.c_str()) == false)
             {
-                m_status.SetStatus(ERROR_FILE_NOT_FOUND, m_isoPath.c_str());
+                HRESULT hr = MAKE_HRESULT(SEVERITY_ERROR, FACILITY_WIN32, ERROR_FILE_NOT_FOUND);
+                m_status.SetStatus(hr, m_isoPath.c_str());
             }
-        }
-        if (false == IsValid())
-        {
-            m_showHelp = true;
         }
     }
 
@@ -50,8 +49,7 @@ public:
         {
             _com_error error(m_status.m_hr);
 
-            wprintf_s(L"%s\n", m_status.m_message.c_str());
-            wprintf_s(L"%s\n", error.ErrorMessage());
+            wprintf_s(L"%s: %s\n", m_status.m_message.c_str(), error.ErrorMessage());
         }
         else if (m_status.m_message.empty() == false)
         {

@@ -7,11 +7,11 @@ public:
     {
         AppContext result;
 
-        for (size_t i = 0; i < argc; i++)
+        for (size_t i = 1; i < argc; i++)
         {
             std::wstring arg(argv[i]);
 
-            if (arg.length() == 2 && (arg[0] == '-' || arg[0] == '\\'))
+            if (arg.length() == 2 && (arg[0] == '-' || arg[0] == '/'))
             {
                 wchar_t option = towlower(arg[1]);
 
@@ -65,10 +65,11 @@ public:
 
         wprintf_s(L"    @SETLOCAL\n");
         wprintf_s(L"    @SET INPUT=LOREM_IPSUM.iso\n\n");
-        wprintf_s(L"    MountIso -v -m %%INPUT%%\n\n");
-        wprintf_s(L"    @SET ISODRVLETTER = %%=ExitCodeAscii%%\n");
-        wprintf_s(L"    @IF \"%%ISODRVLETTER%%\"==\"\" @GOTO :END\n");
-        wprintf_s(L"    @SET ISODRIVE = %%ISODRVLETTER%%:\\\n");
+        wprintf_s(L"    MountIso -v -m %%INPUT%%\n");
+        wprintf_s(L"    @IF ERRORLEVEL 255 @GOTO :END\n\n");
+        wprintf_s(L"    @SET ISODRVLETTER=%%=ExitCodeAscii%%\n");
+        wprintf_s(L"    @IF \"%%ISODRVLETTER%%\"==\"\" @GOTO :END\n\n");
+        wprintf_s(L"    @SET ISODRIVE=%%ISODRVLETTER%%:\\\n\n");
         wprintf_s(L"    @ECHO.\n");
         wprintf_s(L"    @ECHO The ISO file %%INPUT%% has been mounted to drive %%ISODRVLETTER%%\n");
         wprintf_s(L"    @ECHO.\n\n");
@@ -86,18 +87,35 @@ public:
     {
         wprintf_s(L"ShowHelp: %s\n", bool_to_wstring(ctx.m_showHelp).c_str());
         wprintf_s(L"Verbose: %s\n", bool_to_wstring(ctx.m_verbose).c_str());
-        wprintf_s(L"IsoPath: \"%s\"", ctx.m_isoPath.c_str());
-        // TODO: wprintf_s(L"Command: {ctx.Command}");
+        wprintf_s(L"IsoPath: \"%s\"\n", ctx.m_isoPath.c_str());
+        wprintf_s(L"Command: %s\n", appcommand_to_wstring(ctx.m_command));
     }
 
-    //        public static void ShowRunState(AppContext ctx)
-    //        {
-    //            string errorMessage = String.IsNullOrEmpty(ctx.ErrorMessage) ? "(Not Set)" : ctx.ErrorMessage;
-    //            string exception = (ctx.Exception == null) ? "(Not Set)" : ctx.Exception.ToString();
-    //
-    //            Console.WriteLine($"Status: {ctx.Status}");
-    //            Console.WriteLine($"DriveLetter: {ctx.DriveLetter}");
-    //            Console.WriteLine($"Error Message: {errorMessage}");
-    //            Console.WriteLine($"Exception: {exception}");
-    //        }
+
+    static wchar_t const*const appcommand_to_wstring(AppCommand command)
+    {
+        static wchar_t const*const strings[] = { L"NotSet", L"Mount", L"Dismount", L"Query", L"Unknown" };
+
+        wchar_t const* result = nullptr;
+
+        switch (command)
+        {
+        case AppCommand::NotSet:
+            result = strings[0];
+            break;
+        case AppCommand::Mount:
+            result = strings[1];
+            break;
+        case AppCommand::Dismount:
+            result = strings[2];
+            break;
+        case  AppCommand::Query:
+            result = strings[3];
+            break;
+        default:
+            result = strings[4];
+            break;
+        }
+        return result;
+    }
 };
