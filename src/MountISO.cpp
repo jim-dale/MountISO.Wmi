@@ -20,6 +20,8 @@
 #include <iostream>
 #include <string>
 
+#define INVALID_DRIVE_LETTER 255
+
 #include "Access.h"
 #include "Utility.h"
 #include "VariantUtil.h"
@@ -39,146 +41,87 @@
 
 int wmain(int argc, PWSTR argv[])
 {
-    _bstr_t DismountMethodName = L"Dismount";
-
     AppContext ctx = ArgsProcessor::Parse(argc, argv);
-
-    int result = 0;
-    bool attached = true;
-    bool verbose = true;
-    HResultStatus status;
 
     std::wstring isoPath = LR"(D:\Linux\ubuntu-12.04-desktop-amd64.iso)";
 
-    _bstr_t isoObjectPath = DiskImageManager::BuildIsoObjectPath(isoPath.c_str());
+    ctx.Validate();
 
-    ComManager com;
-    HRESULT hr = com.Initialise();
-    if (SUCCEEDED(hr))
+    if (ctx.m_showHelp)
     {
-        hr = com.InitialiseSecurity();
+        ArgsProcessor::ShowHelp();
     }
 
-    if (SUCCEEDED(hr))
+    if (ctx.IsValid())
     {
-        DiskImageManager diskImageManager;
-
+        ComManager com;
+        HRESULT hr = com.Initialise();
+        if (SUCCEEDED(hr))
         {
-            CComPtr<IWbemLocator> locator;
-            if (diskImageManager.Succeeded())
+            hr = com.InitialiseSecurity();
+            if (FAILED(hr))
             {
-                locator = diskImageManager.GetLocator();
+                ctx.m_status.SetStatus(hr, L"COM security initialisation failed.");
             }
-            CComPtr<IWbemServices> service;
-            if (diskImageManager.Succeeded())
+        }
+        else
+        {
+            ctx.m_status.SetStatus(hr, L"COM initialisation failed.");
+        }
+        if (SUCCEEDED(hr))
+        {
+            DiskImageManager diskImageManager(ctx.m_verbose, &ctx.m_status);
+
+            diskImageManager.Initialise(isoPath);
+
+            if (ctx.m_status.Succeeded())
             {
-                service = diskImageManager.GetStorageService(locator);
-            }
-            if (diskImageManager.Succeeded())
-            {
-                diskImageManager.SetProxyBlanket(service);
-            }
-
-
-
-
-            if (false == attached)
-            {
-                CComPtr<IWbemClassObject> diskImageClass;
-                if (diskImageManager.Succeeded())
+                switch (ctx.m_command)
                 {
-                    diskImageClass = diskImageManager.GetDiskImageClass(service);
-                }
-
-                CComPtr<IWbemClassObject> inParamsDefinition;
-                if (diskImageManager.Succeeded())
+                case AppCommand::Mount:
                 {
-                    inParamsDefinition = diskImageManager.GetMountInParametersDefinition(diskImageClass);
-                }
-
-                CComPtr<IWbemClassObject> inParams;
-                if (diskImageManager.Succeeded())
-                {
-                    inParams = diskImageManager.SpawnInstance(inParamsDefinition);
-                }
-
-                if (diskImageManager.Succeeded())
-                {
-                    _variant_t parameter((long)Access::ReadOnly);
-
-                    diskImageManager.SetPropertyValue(inParams, L"Access", parameter);
-                }
-                if (diskImageManager.Succeeded())
-                {
-                    _variant_t parameter(false);
-
-                    diskImageManager.SetPropertyValue(inParams, L"NoDriveLetter", parameter);
-                }
-                CComPtr<IWbemClassObject> outParams;
-                if (diskImageManager.Succeeded())
-                {
-                    outParams = diskImageManager.InvokeMethod(service, isoObjectPath, L"Mount", inParams);
-                }
-                if (diskImageManager.Succeeded())
-                {
-                    int returnValue = diskImageManager.GetPropertyValueAs<int>(outParams, L"ReturnValue");
-
-                    if (verbose)
+                    int returnValue = diskImageManager.MountIso();
+                    if (ctx.m_verbose)
                     {
                         wprintf(L"Mount return value = %d", returnValue);
                     }
-                }
-            }
 
-            CComPtr<IWbemClassObject> diskImage;
-            if (diskImageManager.Succeeded())
-            {
-                diskImage = diskImageManager.GetDiskImageObject(service, isoObjectPath);
-            }
-            if (diskImageManager.Succeeded())
-            {
-                if (verbose)
-                {
-                    diskImageManager.ShowProperties(diskImage);
-                }
-
-                attached = diskImageManager.GetPropertyValueAs<bool>(diskImage, L"Attached");
-
-                CComPtr<IEnumWbemClassObject> enumerator;
-
-                _bstr_t query = DiskImageManager::BuildAssociatorsQuery(isoObjectPath);
-
-                long lFlags = WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY;
-
-                HRESULT hr = service->ExecQuery(_bstr_t("WQL"), query, lFlags, nullptr, &enumerator);
-                if (SUCCEEDED(hr))
-                {
-                    ULONG returned = 0;
-
-                    for (;;)
+                    if (ctx.m_status.Succeeded())
                     {
-                        CComPtr<IWbemClassObject> obj;
-
-                        hr = enumerator->Next(WBEM_INFINITE, 1, &obj, &returned);
-
-                        if (returned == 0 || FAILED(hr))
-                            break;
-
-                        int driveLetter = diskImageManager.GetPropertyValueAs<int>(obj, L"DriveLetter");
-
-                        result = driveLetter;
-
-                        if (verbose)
-                        {
-                            diskImageManager.ShowProperties(obj);
-
-                            wprintf_s(L"\n\nDrive letter = %d\n", driveLetter);
-                        }
+                        ctx.m_driveLetter = diskImageManager.GetDriveLetter();
                     }
                 }
+                break;
+                case AppCommand::Dismount:
+                {
+                    int returnValue = diskImageManager.DismountIso();
+                    if (ctx.m_verbose)
+                    {
+                        wprintf(L"Dismount return value = %d", returnValue);
+                    }
+                }
+                break;
+                case AppCommand::Query:
+                    ctx.m_driveLetter = diskImageManager.GetDriveLetter();
+                    break;
+                }
             }
-            //diskImageManager.ShowError();
         }
     }
-    return result;
+    ctx.ShowError();
+
+    return ctx.m_driveLetter;
 }
+//CComPtr<IWbemClassObject> diskImage;
+//if (status.Succeeded())
+//{
+//    diskImage = diskImageManager.GetDiskImageObject(service, isoObjectPath);
+//}
+//if (status.Succeeded())
+//{
+//    if (verbose)
+//    {
+//        diskImageManager.ShowProperties(diskImage);
+//    }
+//
+//    attached = diskImageManager.GetPropertyValueAs<bool>(diskImage, L"Attached");

@@ -3,14 +3,12 @@
 class AppContext
 {
 public:
-    const int INVALID_DRIVE_LETTER = 255;
-
     bool m_showHelp;
     bool m_verbose;
+    HResultStatus m_status;
     std::wstring m_isoPath;
     AppCommand m_command;
     int m_driveLetter;
-    std::wstring m_errorMessage;
 
     AppContext()
     {
@@ -22,17 +20,17 @@ public:
     {
         if (m_command == AppCommand::NotSet)
         {
-            m_errorMessage = L"Specify an option to either Mount or Dismount an ISO file.";
+            m_status.m_message = L"Specify an option to either Mount, Dismount or Query an ISO file.";
         }
         else if (m_isoPath.empty())
         {
-            m_errorMessage = L"Specify the path to a valid ISO file.";
+            m_status.m_message = L"Specify the path to a valid ISO file.";
         }
         else
         {
             if (FileExists(m_isoPath.c_str()) == false)
             {
-                m_errorMessage = L"The ISO file \"" + m_isoPath + L"\" was not found.";
+                m_status.SetStatus(ERROR_FILE_NOT_FOUND, m_isoPath.c_str());
             }
         }
         if (false == IsValid())
@@ -43,17 +41,21 @@ public:
 
     bool IsValid()
     {
-        return m_errorMessage.empty();
+        return m_status.m_message.empty();
     }
 
-    void ShowError(HRESULT hr, const std::wstring& context)
+    void ShowError()
     {
-        if (FAILED(hr))
+        if (m_status.Failed())
         {
-            _com_error error(hr);
+            _com_error error(m_status.m_hr);
 
-            wprintf(_T("%s failed.\n"), context.c_str());
-            wprintf(_T("%s\n"), error.ErrorMessage());
+            wprintf_s(L"%s\n", m_status.m_message.c_str());
+            wprintf_s(L"%s\n", error.ErrorMessage());
+        }
+        else if (m_status.m_message.empty() == false)
+        {
+            wprintf_s(L"%s\n", m_status.m_message.c_str());
         }
     }
 

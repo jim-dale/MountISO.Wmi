@@ -76,7 +76,7 @@ public:
         return result;
     }
 
-    _variant_t GetPropertyValue(CComPtr<IWbemClassObject> object, wchar_t const*const propertyName, IHResultStatus* status)
+    static _variant_t GetPropertyValue(CComPtr<IWbemClassObject> object, wchar_t const*const propertyName, IHResultStatus* status)
     {
         _variant_t result;
 
@@ -88,7 +88,7 @@ public:
         return result;
     }
 
-    void SetPropertyValue(CComPtr<IWbemClassObject> object, wchar_t const*const propertyName, _variant_t& value, IHResultStatus* status)
+    static void SetPropertyValue(CComPtr<IWbemClassObject> object, wchar_t const*const propertyName, _variant_t& value, IHResultStatus* status)
     {
         HRESULT hr = object->Put(propertyName, 0, static_cast<LPVARIANT>(&value), 0);
         if (FAILED(hr))
@@ -97,7 +97,7 @@ public:
         }
     }
 
-    void ShowProperties(CComPtr<IWbemClassObject> object)
+    static void ShowProperties(CComPtr<IWbemClassObject> object)
     {
         long lFlags = WBEM_FLAG_ALWAYS;
 
