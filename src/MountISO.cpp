@@ -52,9 +52,18 @@ int wmain(int argc, PWSTR argv[])
 
     if (ctx.IsValid())
     {
+        if (ctx.m_verbose)
+        {
+            ArgsProcessor::ShowConfiguration(ctx);
+        }
+
         ComManager com;
         HRESULT hr = com.Initialise();
-        if (SUCCEEDED(hr))
+        if (FAILED(hr))
+        {
+            ctx.m_status.SetStatus(hr, L"COM initialisation failed.");
+        }
+        else
         {
             hr = com.InitialiseSecurity();
             if (FAILED(hr))
@@ -62,15 +71,12 @@ int wmain(int argc, PWSTR argv[])
                 ctx.m_status.SetStatus(hr, L"COM security initialisation failed.");
             }
         }
-        else
-        {
-            ctx.m_status.SetStatus(hr, L"COM initialisation failed.");
-        }
-        if (SUCCEEDED(hr))
+
+        if (ctx.m_status.Succeeded())
         {
             DiskImageManager diskImageManager(ctx.m_verbose, &ctx.m_status);
 
-            diskImageManager.Initialise(isoPath);
+            diskImageManager.Initialise(ctx.m_isoPath);
 
             if (ctx.m_status.Succeeded())
             {
@@ -87,6 +93,10 @@ int wmain(int argc, PWSTR argv[])
                     if (ctx.m_status.Succeeded())
                     {
                         ctx.m_driveLetter = diskImageManager.GetDriveLetter();
+                        if (ctx.m_verbose)
+                        {
+                            wprintf(L"Mount drive letter = %d", ctx.m_driveLetter);
+                        }
                     }
                 }
                 break;
@@ -101,13 +111,19 @@ int wmain(int argc, PWSTR argv[])
                 break;
                 case AppCommand::Query:
                     ctx.m_driveLetter = diskImageManager.GetDriveLetter();
+                    if (ctx.m_verbose)
+                    {
+                        wprintf(L"Query drive letter = %d", ctx.m_driveLetter);
+                    }
                     break;
                 }
             }
         }
     }
-    ctx.ShowError();
-
+    if (false == ctx.IsValid())
+    {
+        ctx.ShowError();
+    }
     return ctx.m_driveLetter;
 }
 

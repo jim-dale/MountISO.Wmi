@@ -7,59 +7,79 @@ public:
     {
         AppContext result;
 
-        //            for(var arg in args)
-        //            {
-        //                if (String.IsNullOrWhiteSpace(arg))
-        //                {
-        //                    continue;
-        //                }
-        //                if (arg.Length == 2 && (arg[0] == '-' || arg[0] == '\\'))
-        //                {
-        //                    char option = Char.ToLowerInvariant(arg[1]);
-        //
-        //                    switch (option)
-        //                    {
-        //                    case '?':
-        //                        result.ShowHelp = true;
-        //                        break;
-        //                    case 'm':
-        //                        result.Command = Command.Mount;
-        //                        break;
-        //                    case 'd':
-        //                        result.Command = Command.Dismount;
-        //                        break;
-        //                    case 'v':
-        //                        result.Verbose = true;
-        //                        break;
-        //                    default:
-        //                        break;
-        //                    }
-        //                }
-        //                else
-        //                {
-        //                    result.IsoPath = arg;
-        //                }
-        //            }
+        for (size_t i = 0; i < argc; i++)
+        {
+            std::wstring arg(argv[i]);
+
+            if (arg.length() == 2 && (arg[0] == '-' || arg[0] == '\\'))
+            {
+                wchar_t option = towlower(arg[1]);
+
+                switch (option)
+                {
+                case '?':
+                    result.m_showHelp = true;
+                    break;
+                case 'm':
+                    result.m_command = AppCommand::Mount;
+                    break;
+                case 'd':
+                    result.m_command = AppCommand::Dismount;
+                    break;
+                case 'q':
+                    result.m_command = AppCommand::Query;
+                    break;
+                case 'v':
+                    result.m_verbose = true;
+                    break;
+                default:
+                    break;
+                }
+            }
+            else
+            {
+                result.m_isoPath = arg;
+            }
+        }
         return result;
     }
 
     static void ShowHelp()
     {
-        wprintf_s(L"MountISO [-?] [-v] -m | -u [drive:][path]filename\n");
+        wprintf_s(L"MountISO [-?] [-v] -m | -d | -q [drive:][path]filename\n");
         wprintf_s(L"  [drive:][path][filename]\n");
         wprintf_s(L"                 Specifies path to the ISO file to perform the action on.\n\n");
 
         wprintf_s(L"  -?             Show this help information.\n");
         wprintf_s(L"  -v             Switches on verbose mode to display additional debug information.\n");
         wprintf_s(L"  -m             Mounts a previously created ISO disk image, making it appear as a normal disk.\n");
-        wprintf_s(L"  -d             Dismounts an ISO disk image so that it can no longer be accessed as a disk.\n\n");
+        wprintf_s(L"  -d             Dismounts an ISO disk image so that it can no longer be accessed as a disk.\n");
+        wprintf_s(L"  -q             Gets the drive letter for a previously mounted ISO disk image.\n\n");
 
         wprintf_s(L"If an ISO file is successfully mounted the program's exit code (ERRORLEVEL) is set\n");
         wprintf_s(L"to the numeric value of the driver letter e.g. 70 = F\n");
         wprintf_s(L"The undocumented environment variable %%=ExitCodeAscii%% can then be used to get the\n");
         wprintf_s(L"ASCII drive letter for the mounted ISO file.\n\n");
 
-        wprintf_s(L"See the 'example-usage.cmd' script for an example of how to use the command.\n\n");
+        wprintf_s(L"Example usage:\n\n");
+
+        wprintf_s(L"    @SETLOCAL\n");
+        wprintf_s(L"    @SET INPUT=LOREM_IPSUM.iso\n\n");
+        wprintf_s(L"    MountIso -v -m %%INPUT%%\n\n");
+        wprintf_s(L"    @SET ISODRVLETTER = %%=ExitCodeAscii%%\n");
+        wprintf_s(L"    @IF \"%%ISODRVLETTER%%\"==\"\" @GOTO :END\n");
+        wprintf_s(L"    @SET ISODRIVE = %%ISODRVLETTER%%:\\\n");
+        wprintf_s(L"    @ECHO.\n");
+        wprintf_s(L"    @ECHO The ISO file %%INPUT%% has been mounted to drive %%ISODRVLETTER%%\n");
+        wprintf_s(L"    @ECHO.\n\n");
+        wprintf_s(L"    DIR %%ISODRIVE%%\n\n");
+        wprintf_s(L"    @ECHO.\n");
+        wprintf_s(L"    @ECHO.\n");
+        wprintf_s(L"    @ECHO Ready to Dismount ISO file\n");
+        wprintf_s(L"    @PAUSE\n\n");
+        wprintf_s(L"    MountIso -d %%INPUT%%\n\n");
+        wprintf_s(L"    :END\n");
+        wprintf_s(L"    @ENDLOCAL\n\n\n");
     }
 
     static void ShowConfiguration(const AppContext& ctx)
