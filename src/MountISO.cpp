@@ -43,8 +43,6 @@ int wmain(int argc, PWSTR argv[])
 {
     AppContext ctx = ArgsProcessor::Parse(argc, argv);
 
-    std::wstring isoPath = LR"(D:\Linux\ubuntu-12.04-desktop-amd64.iso)";
-
     ctx.Validate();
 
     if (ctx.m_showHelp)
@@ -112,6 +110,10 @@ int wmain(int argc, PWSTR argv[])
 
     return ctx.m_driveLetter;
 }
+
+
+
+
 //CComPtr<IWbemClassObject> diskImage;
 //if (status.Succeeded())
 //{
