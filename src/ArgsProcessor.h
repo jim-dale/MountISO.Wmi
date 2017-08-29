@@ -7,7 +7,7 @@ public:
     {
         AppContext result;
 
-        for (size_t i = 1; i < argc; i++)
+        for (int i = 1; i < argc; i++)
         {
             std::wstring arg(argv[i]);
 
