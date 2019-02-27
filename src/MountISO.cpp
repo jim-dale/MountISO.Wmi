@@ -61,14 +61,14 @@ int wmain(int argc, PWSTR argv[])
         HRESULT hr = com.Initialise();
         if (FAILED(hr))
         {
-            ctx.m_status.SetStatus(hr, L"COM initialisation failed.");
+            ctx.m_status.SetStatus(hr, L"COM initialisation failed");
         }
         else
         {
             hr = com.InitialiseSecurity();
             if (FAILED(hr))
             {
-                ctx.m_status.SetStatus(hr, L"COM security initialisation failed.");
+                ctx.m_status.SetStatus(hr, L"COM security initialisation failed");
             }
         }
 
@@ -126,20 +126,3 @@ int wmain(int argc, PWSTR argv[])
     }
     return ctx.m_driveLetter;
 }
-
-
-
-
-//CComPtr<IWbemClassObject> diskImage;
-//if (status.Succeeded())
-//{
-//    diskImage = diskImageManager.GetDiskImageObject(service, isoObjectPath);
-//}
-//if (status.Succeeded())
-//{
-//    if (verbose)
-//    {
-//        diskImageManager.ShowProperties(diskImage);
-//    }
-//
-//    attached = diskImageManager.GetPropertyValueAs<bool>(diskImage, L"Attached");

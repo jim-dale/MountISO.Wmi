@@ -22,7 +22,7 @@ public:
     void Initialise(const std::wstring& isoPath)
     {
         m_isoPath = isoPath;
-        m_isoObjectPath = DiskImageManager::BuildIsoObjectPath(m_isoPath.c_str());
+        m_isoObjectPath = DiskImageManager::BuildIsoObjectPath(m_isoPath);
 
         if (m_statusReporter->Succeeded())
         {
@@ -205,9 +205,11 @@ public:
     /// BuildAssociatorsQuery builds a query to return the MSFT_Volume
     /// class instance, if one exists, for a given MSFT_DiskImage class instance.
     /// </summary>
-    static _bstr_t BuildIsoObjectPath(wchar_t const*const isoPath)
+    static _bstr_t BuildIsoObjectPath(const std::wstring& isoPath)
     {
-        _bstr_t result = L"MSFT_DiskImage.ImagePath='" + _bstr_t(isoPath) + L"',StorageType=1";
+        std::wstring path = isoPath;
+        DiskImageManager::FindAndReplaceAll(path, L"\\", L"\\\\");
+        _bstr_t result = L"MSFT_DiskImage.ImagePath=\"" + _bstr_t(path.c_str()) + L"\",StorageType=1";
         return result;
     }
 
@@ -220,5 +222,22 @@ public:
         _bstr_t result = L"ASSOCIATORS OF {" + objectPath + L"}";
         result += " WHERE AssocClass = MSFT_DiskImageToVolume ResultClass = MSFT_Volume";
         return result;
+    }
+
+    static std::wstring& FindAndReplaceAll(std::wstring& str, const std::wstring& toSearch, const std::wstring& replaceStr)
+    {
+        // Get the first occurrence
+        size_t pos = str.find(toSearch);
+
+        // Repeat till end is reached
+        while (pos != std::string::npos)
+        {
+            // Replace this occurrence of Sub String
+            str.replace(pos, toSearch.size(), replaceStr);
+            // Get the next occurrence from the current position
+            pos = str.find(toSearch, pos + replaceStr.size());
+        }
+
+        return str;
     }
 };
