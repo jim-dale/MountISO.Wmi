@@ -1,7 +1,7 @@
 # https://docs.microsoft.com/azure/devops/pipelines/apps/windows/dot-net
 
-trigger: none
-#- main
+trigger:
+- main
 
 pool:
   vmImage: 'windows-latest'
