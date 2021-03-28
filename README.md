@@ -1,5 +1,5 @@
 # MountISO.Wmi
-Native command line utility to mount an ISO image file, making it appear as a normal disk.
+Native Windows command line utility to mount an ISO image file, making it appear as a normal disk.
 
 ```
 MountISO [-?] [-v] -m | -d | -q [drive:][path]filename
