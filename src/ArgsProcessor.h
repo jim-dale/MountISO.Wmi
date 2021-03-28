@@ -57,7 +57,7 @@ public:
         wprintf_s(L"  -q             Gets the drive letter for a previously mounted ISO disk image.\n\n");
 
         wprintf_s(L"If an ISO file is successfully mounted the program's exit code (ERRORLEVEL) is set\n");
-        wprintf_s(L"to the numeric value of the driver letter e.g. 70 = F\n");
+        wprintf_s(L"to the numeric value of the drive letter e.g. 70 = F\n");
         wprintf_s(L"The undocumented environment variable %%=ExitCodeAscii%% can then be used to get the\n");
         wprintf_s(L"ASCII drive letter for the mounted ISO file.\n\n");
 
