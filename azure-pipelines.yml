@@ -32,7 +32,7 @@ steps:
     rootFolderOrFile: '$(Build.SourcesDirectory)\bin\$(BuildPlatform)\$(BuildConfiguration)\*.exe'
     includeRootFolder: true
     archiveType: 'zip'
-    archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildNumber).zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildNumber)-$(buildPlatform)-$(buildConfiguration).zip'
     replaceExistingArchive: true
 
 - task: PublishBuildArtifacts@1
