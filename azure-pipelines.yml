@@ -27,10 +27,10 @@ steps:
 
 - task: ArchiveFiles@2
   inputs:
-    rootFolderOrFile: '$(Build.BinariesDirectory)'
+    rootFolderOrFile: '$(Build.SourcesDirectory)\bin\$(BuildPlatform)\$(BuildConfiguration)\*.exe'
     includeRootFolder: true
     archiveType: 'zip'
-    archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.DefinitionName)-$(Build.BuildId).zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/$(name)-$(Build.DefinitionName)-$(Build.BuildId).zip'
     replaceExistingArchive: true
 
 - task: PublishBuildArtifacts@1
