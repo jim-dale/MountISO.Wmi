@@ -22,3 +22,10 @@ steps:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
+- task: CopyFiles@2
+  displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
+  inputs:
+    SourceFolder: '$(build.sourcesdirectory)'
+    Contents: '**\bin\$(BuildPlatform)\$(BuildConfiguration)\**'
+    TargetFolder: '$(build.artifactstagingdirectory)'
+
