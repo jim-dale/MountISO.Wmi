@@ -1,7 +1,7 @@
 # https://docs.microsoft.com/azure/devops/pipelines/apps/windows/dot-net
 
-trigger:
-- master
+trigger: none
+#- main
 
 pool:
   vmImage: 'windows-latest'
@@ -18,12 +18,20 @@ steps:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
-- task: CopyFiles@2
-  displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
+#- task: CopyFiles@2
+#  displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
+#  inputs:
+#    sourceFolder: '$(build.sourcesdirectory)'
+#    contents: '**\bin\$(BuildPlatform)\$(BuildConfiguration)\**'
+#    targetFolder: '$(build.artifactstagingdirectory)'
+
+- task: ArchiveFiles@2
   inputs:
-    sourceFolder: '$(build.sourcesdirectory)'
-    contents: '**\bin\$(BuildPlatform)\$(BuildConfiguration)\**'
-    targetFolder: '$(build.artifactstagingdirectory)'
+    rootFolderOrFile: '$(Build.BinariesDirectory)/*.exe'
+    includeRootFolder: true
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+    replaceExistingArchive: true
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifact: drop'
