@@ -1,6 +1,6 @@
 # https://docs.microsoft.com/azure/devops/pipelines/apps/windows/dot-net
 
-name: $(TeamProject)_$(Build.DefinitionName)_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)
+name: $(TeamProject)_$(Build.DefinitionName)_$(Build.SourceVersion)
 
 trigger:
 - main
@@ -20,19 +20,12 @@ steps:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
-#- task: CopyFiles@2
-#  displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
-#  inputs:
-#    sourceFolder: '$(build.sourcesdirectory)'
-#    contents: '**\bin\$(BuildPlatform)\$(BuildConfiguration)\**'
-#    targetFolder: '$(build.artifactstagingdirectory)'
-
 - task: ArchiveFiles@2
   inputs:
-    rootFolderOrFile: '$(Build.SourcesDirectory)\bin\$(BuildPlatform)\$(BuildConfiguration)\*.exe'
+    rootFolderOrFile: '$(Build.SourcesDirectory)\bin\$(buildPlatform)\$(buildConfiguration)\*.exe'
     includeRootFolder: true
     archiveType: 'zip'
-    archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildNumber).zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildNumber)-$(buildPlatform)-$(buildConfiguration).zip'
     replaceExistingArchive: true
 
 - task: PublishBuildArtifacts@1
