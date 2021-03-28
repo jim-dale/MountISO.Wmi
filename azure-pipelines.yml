@@ -1,5 +1,7 @@
 # https://docs.microsoft.com/azure/devops/pipelines/apps/windows/dot-net
 
+name: $(TeamProject)_$(Build.DefinitionName)_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)
+
 trigger:
 - main
 
@@ -30,7 +32,7 @@ steps:
     rootFolderOrFile: '$(Build.SourcesDirectory)\bin\$(BuildPlatform)\$(BuildConfiguration)\*.exe'
     includeRootFolder: true
     archiveType: 'zip'
-    archiveFile: '$(Build.ArtifactStagingDirectory)/$(name)-$(Build.DefinitionName)-$(Build.BuildId).zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildNumber).zip'
     replaceExistingArchive: true
 
 - task: PublishBuildArtifacts@1
