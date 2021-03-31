@@ -19,7 +19,7 @@ steps:
     solution: '$(solution)'
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
-    msbuildArgs: '-p:BUILDNUM=$(Build.SourceVersion)'
+    msbuildArgs: '-p:BUILD_BUILDNUMBER=$(Build.SourceVersion)'
 
 - task: ArchiveFiles@2
   inputs:
