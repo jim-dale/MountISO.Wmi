@@ -46,6 +46,8 @@ public:
 
     static void ShowHelp()
     {
+        ShowVersion();
+
         wprintf_s(L"MountISO [-?] [-v] -m | -d | -q [drive:][path]filename\n");
         wprintf_s(L"  [drive:][path][filename]\n");
         wprintf_s(L"                 Specifies path to the ISO file to perform the action on.\n\n");
@@ -83,8 +85,22 @@ public:
         wprintf_s(L"    @ENDLOCAL\n\n\n");
     }
 
+    static void ShowVersion()
+    {
+        std::wstring shortGitHash = GitHash;
+
+        if (shortGitHash.length() > SHORTGITHASHLEN)
+        {
+            shortGitHash = shortGitHash.substr(0, SHORTGITHASHLEN);
+        }
+
+        wprintf_s(L"%s %s-%s-%s-%s (%s)\n\n", ProgramName, ProgramVersion, shortGitHash.c_str(), ProgramPlatform, ProgramConfig, GitHash);
+    }
+
     static void ShowConfiguration(const AppContext& ctx)
     {
+        ShowVersion();
+
         wprintf_s(L"ShowHelp: %s\n", bool_to_wstring(ctx.m_showHelp).c_str());
         wprintf_s(L"Verbose: %s\n", bool_to_wstring(ctx.m_verbose).c_str());
         wprintf_s(L"IsoPath: \"%s\"\n", ctx.m_isoPath.c_str());

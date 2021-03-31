@@ -22,6 +22,8 @@
 
 #define INVALID_DRIVE_LETTER 255
 
+#include "AppMetadata.h"
+
 #include "Access.h"
 #include "Utility.h"
 #include "VariantUtil.h"
@@ -122,6 +124,8 @@ int wmain(int argc, PWSTR argv[])
     }
     if (false == ctx.IsValid())
     {
+        ArgsProcessor::ShowHelp();
+
         ctx.ShowError();
     }
     return ctx.m_driveLetter;
