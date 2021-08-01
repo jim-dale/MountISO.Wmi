@@ -40,7 +40,6 @@
 
 #pragma comment(lib, "wbemuuid.lib")
 
-
 int wmain(int argc, PWSTR argv[])
 {
     AppContext ctx = ArgsProcessor::Parse(argc, argv);
@@ -51,8 +50,11 @@ int wmain(int argc, PWSTR argv[])
     {
         ArgsProcessor::ShowHelp();
     }
-
-    if (ctx.IsValid())
+    else if (ctx.m_showVersion)
+    {
+        ArgsProcessor::ShowVersion();
+    }
+    else if (false == ctx.HasError())
     {
         if (ctx.m_verbose)
         {
@@ -122,7 +124,7 @@ int wmain(int argc, PWSTR argv[])
             }
         }
     }
-    if (false == ctx.IsValid())
+    if (ctx.HasError())
     {
         ArgsProcessor::ShowHelp();
 

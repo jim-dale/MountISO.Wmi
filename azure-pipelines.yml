@@ -1,3 +1,6 @@
+# .NET Desktop
+# Build and run tests for .NET Desktop or Windows classic desktop solutions.
+# Add steps that publish symbols, save build artifacts, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/apps/windows/dot-net
 
 name: $(TeamProject)_$(Build.DefinitionName)_$(Build.SourceVersion)
@@ -5,12 +8,19 @@ name: $(TeamProject)_$(Build.DefinitionName)_$(Build.SourceVersion)
 trigger:
 - main
 
+strategy:
+  matrix:
+    x86:
+      PlatformName: 'x86'
+    x64:
+      PlatformName: 'x64'
+
 pool:
   vmImage: 'windows-latest'
 
 variables:
   solution: '**/*.sln'
-  buildPlatform: 'x86'
+  buildPlatform: $(PlatformName)
   buildConfiguration: 'Release'
 
 steps:
@@ -19,19 +29,29 @@ steps:
     solution: '$(solution)'
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
-    msbuildArgs: '-p:BUILD_BUILDNUMBER=$(Build.SourceVersion)'
+
+- task: CopyFiles@2
+  displayName: 'Copy Files to: $(Build.ArtifactStagingDirectory)\ToPublish'
+  inputs:
+    contents: |
+      LICENSE
+      README.md
+      bin\$(buildConfiguration)\$(buildPlatform)\*.exe
+    flattenFolders: true
+    targetFolder: '$(Build.ArtifactStagingDirectory)\ToPublish'
 
 - task: ArchiveFiles@2
+  displayName: 'Creating archive: $(Build.ArtifactStagingDirectory)\$(Build.BuildNumber)-$(buildConfiguration)-$(buildPlatform).zip'
   inputs:
-    rootFolderOrFile: '$(Build.SourcesDirectory)\bin\$(buildPlatform)\$(buildConfiguration)\*.exe'
-    includeRootFolder: true
+    rootFolderOrFile: '$(Build.ArtifactStagingDirectory)\ToPublish'
+    includeRootFolder: false
     archiveType: 'zip'
-    archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildNumber)-$(buildPlatform)-$(buildConfiguration).zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)\$(Build.BuildNumber)-$(buildConfiguration)-$(buildPlatform).zip'
     replaceExistingArchive: true
 
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish Artifact: drop'
+- task: PublishPipelineArtifact@1
+  displayName: 'Publish Artifact: drop-$(buildPlatform)'
   inputs:
-    pathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    artifactName: 'drop'
-    publishLocation: 'Container'
+    targetPath: '$(Build.ArtifactStagingDirectory)\$(Build.BuildNumber)-$(buildConfiguration)-$(buildPlatform).zip'
+    artifactType: pipeline
+    artifactName: 'drop-$(buildPlatform)'

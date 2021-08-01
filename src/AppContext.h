@@ -4,6 +4,7 @@ class AppContext
 {
 public:
     bool m_showHelp;
+    bool m_showVersion;
     bool m_verbose;
     HResultStatus m_status;
     std::wstring m_isoPath;
@@ -13,6 +14,7 @@ public:
     AppContext()
     {
         m_showHelp = false;
+        m_showVersion = false;
         m_verbose = false;
         m_command = AppCommand::NotSet;
         m_driveLetter = INVALID_DRIVE_LETTER;
@@ -20,27 +22,30 @@ public:
 
     void Validate()
     {
-        if (m_command == AppCommand::NotSet)
+        if (false == m_showHelp && false == m_showVersion)
         {
-            m_status.m_message = L"Specify an option to either Mount, Dismount or Query an ISO file.";
-        }
-        else if (m_isoPath.empty())
-        {
-            m_status.m_message = L"Specify the path to a valid ISO file.";
-        }
-        else
-        {
-            if (FileExists(m_isoPath.c_str()) == false)
+            if (m_command == AppCommand::NotSet)
             {
-                HRESULT hr = MAKE_HRESULT(SEVERITY_ERROR, FACILITY_WIN32, ERROR_FILE_NOT_FOUND);
-                m_status.SetStatus(hr, m_isoPath.c_str());
+                m_status.m_message = L"Specify an option to either Mount, Dismount or Query an ISO file.";
+            }
+            else if (m_isoPath.empty())
+            {
+                m_status.m_message = L"Specify the path to a valid ISO file.";
+            }
+            else
+            {
+                if (FileExists(m_isoPath.c_str()) == false)
+                {
+                    HRESULT hr = MAKE_HRESULT(SEVERITY_ERROR, FACILITY_WIN32, ERROR_FILE_NOT_FOUND);
+                    m_status.SetStatus(hr, m_isoPath.c_str());
+                }
             }
         }
     }
 
-    bool IsValid()
+    bool HasError()
     {
-        return m_status.m_message.empty();
+        return false == m_status.m_message.empty();
     }
 
     void ShowError()

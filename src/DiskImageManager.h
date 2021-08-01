@@ -75,7 +75,7 @@ public:
             }
             if (m_statusReporter->Succeeded())
             {
-                CComPtr<IWbemClassObject> outParams = InvokeMethod(m_service, m_isoObjectPath, L"Mount", inParams);
+                CComPtr<IWbemClassObject> outParams = InvokeMethod(m_service, m_isoObjectPath, _bstr_t(L"Mount"), inParams);
                 if (m_statusReporter->Succeeded())
                 {
                     result = GetPropertyValueAs<int>(outParams, L"ReturnValue");
@@ -96,7 +96,7 @@ public:
         }
         if (m_statusReporter->Succeeded())
         {
-            CComPtr<IWbemClassObject> outParams = InvokeMethod(m_service, m_isoObjectPath, L"Dismount", nullptr);
+            CComPtr<IWbemClassObject> outParams = InvokeMethod(m_service, m_isoObjectPath, _bstr_t(L"Dismount"), nullptr);
             if (m_statusReporter->Succeeded())
             {
                 result = GetPropertyValueAs<int>(outParams, L"ReturnValue");
@@ -155,7 +155,7 @@ public:
 
     CComPtr<IWbemClassObject> GetDiskImageClass(CComPtr<IWbemServices> service)
     {
-        return WmiManager::GetObject(service, L"MSFT_DiskImage", L"Get Disk Image Class", m_statusReporter);
+        return WmiManager::GetObject(service, _bstr_t(L"MSFT_DiskImage"), _bstr_t(L"Get Disk Image Class"), m_statusReporter);
     }
 
     CComPtr<IWbemClassObject> GetMountInParametersDefinition(CComPtr<IWbemClassObject> object)
@@ -207,9 +207,9 @@ public:
     /// </summary>
     static _bstr_t BuildIsoObjectPath(const std::wstring& isoPath)
     {
-        std::wstring path = isoPath;
-        DiskImageManager::FindAndReplaceAll(path, L"\\", L"\\\\");
-        _bstr_t result = L"MSFT_DiskImage.ImagePath=\"" + _bstr_t(path.c_str()) + L"\",StorageType=1";
+        std::wstring path = DiskImageManager::FindAndReplaceAll(isoPath, L"\\", L"\\\\");
+        std::wstring temp = std::wstring(L"MSFT_DiskImage.ImagePath=\"") + path + std::wstring(L"\",StorageType=1");
+        _bstr_t result(temp.c_str());
         return result;
     }
 
@@ -224,20 +224,21 @@ public:
         return result;
     }
 
-    static std::wstring& FindAndReplaceAll(std::wstring& str, const std::wstring& toSearch, const std::wstring& replaceStr)
+    static std::wstring FindAndReplaceAll(const std::wstring& value, const std::wstring& toSearch, const std::wstring& replaceStr)
     {
+        std::wstring result(value);
+
         // Get the first occurrence
-        size_t pos = str.find(toSearch);
+        size_t pos = result.find(toSearch);
 
         // Repeat till end is reached
         while (pos != std::string::npos)
         {
             // Replace this occurrence of Sub String
-            str.replace(pos, toSearch.size(), replaceStr);
+            result.replace(pos, toSearch.size(), replaceStr);
             // Get the next occurrence from the current position
-            pos = str.find(toSearch, pos + replaceStr.size());
+            pos = result.find(toSearch, pos + replaceStr.size());
         }
-
-        return str;
+        return result;
     }
 };

@@ -5,7 +5,7 @@ class VariantUtil
 public:
     static std::wstring GetVariantType(const VARIANT& v)
     {
-        std::wstring result = L"*NOT MAPPED*";
+        std::wstring result(L"*NOT MAPPED*");
 
         switch (v.vt)
         {
@@ -33,7 +33,7 @@ public:
 
     static std::wstring GetVariantValue(const VARIANT& v)
     {
-        std::wstring result = L"*NOT MAPPED*";
+        std::wstring result(L"*NOT MAPPED*");
 
         switch (v.vt)
         {

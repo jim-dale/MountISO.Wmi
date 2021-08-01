@@ -9,10 +9,10 @@ public:
     HResultStatus()
     {
         m_hr = S_OK;
-        m_message = L"";
+        m_message.clear();
     }
 
-    void SetStatus(HRESULT hr, wchar_t const * const message)
+    void SetStatus(HRESULT hr, wchar_t const*const message)
     {
         m_hr = hr;
         m_message = message;

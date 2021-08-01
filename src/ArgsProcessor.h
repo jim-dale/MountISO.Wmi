@@ -36,6 +36,10 @@ public:
 					break;
 				}
 			}
+			else if (_wcsicmp(L"--version", arg.c_str()) == 0)
+			{
+				result.m_showVersion = true;
+			}
 			else
 			{
 				result.m_isoPath = arg;
@@ -48,11 +52,12 @@ public:
 	{
 		ShowVersion();
 
-		wprintf_s(L"MountISO [-?] [-v] -m | -d | -q [drive:][path]filename\n");
+		wprintf_s(L"\nMountISO [-?] [--version] [-v] -m | -d | -q [drive:][path]filename\n");
 		wprintf_s(L"  [drive:][path][filename]\n");
 		wprintf_s(L"                 Specifies path to the ISO file to perform the action on.\n\n");
 
 		wprintf_s(L"  -?             Show this help information.\n");
+		wprintf_s(L"  --version      Show the version information.\n");
 		wprintf_s(L"  -v             Switches on verbose mode to display additional debug information.\n");
 		wprintf_s(L"  -m             Mounts a previously created ISO disk image, making it appear as a normal disk.\n");
 		wprintf_s(L"  -d             Dismounts an ISO disk image so that it can no longer be accessed as a disk.\n");
@@ -87,14 +92,21 @@ public:
 
 	static void ShowVersion()
 	{
-		std::wstring shortGitHash = GitHash;
+		std::wstring notSet(Check_SourceVersion);
 
+		std::wstring gitHash(GitHash);
+		if (gitHash.compare(notSet) != 0 && gitHash.length() > notSet.length())
+		{
+			gitHash = gitHash.substr(0, gitHash.length() - notSet.length());
+		}
+
+		std::wstring shortGitHash(gitHash);
 		if (shortGitHash.length() > SHORTGITHASHLEN)
 		{
 			shortGitHash = shortGitHash.substr(shortGitHash.length() - SHORTGITHASHLEN);
 		}
 
-		wprintf_s(L"%s %s-%s-%s-%s (%s)\n\n", ProgramName, ProgramVersion, shortGitHash.c_str(), ProgramPlatform, ProgramConfig, GitHash);
+		wprintf(L"%s %s-%s-%s-%s (%s)\n", ProgramName, ProgramVersion, shortGitHash.c_str(), ProgramPlatform, ProgramConfig, gitHash.c_str());
 	}
 
 	static void ShowConfiguration(const AppContext& ctx)
@@ -102,6 +114,7 @@ public:
 		ShowVersion();
 
 		wprintf_s(L"ShowHelp: %s\n", bool_to_wstring(ctx.m_showHelp).c_str());
+		wprintf_s(L"ShowVersion: %s\n", bool_to_wstring(ctx.m_showVersion).c_str());
 		wprintf_s(L"Verbose: %s\n", bool_to_wstring(ctx.m_verbose).c_str());
 		wprintf_s(L"IsoPath: \"%s\"\n", ctx.m_isoPath.c_str());
 		wprintf_s(L"Command: %s\n", appcommand_to_wstring(ctx.m_command));

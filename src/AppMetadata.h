@@ -3,28 +3,25 @@
 #define STRINGIFY2(x) #x
 #define STRINGIFY(x) STRINGIFY2(x)
 
-#define VERSION "1.3.0"
 #define SHORTGITHASHLEN 8
+#define CHECK_SOURCEVERSION NOTSET
+static const wchar_t* Check_SourceVersion = _T(STRINGIFY(-CHECK_SOURCEVERSION-));
 
-#ifndef BUILDNUM
-#define BUILDNUM InternalOnly
-#endif
-
-static const PTCHAR ProgramName = _T("MountISO");
-static const PTCHAR ProgramVersion = _T(VERSION);
-static const PTCHAR GitHash = _T(STRINGIFY(BUILDNUM));
+static const wchar_t* ProgramName = _T("MountISO");
+static const wchar_t* ProgramVersion = _T("1.4.0");
+static const wchar_t* GitHash = _T(STRINGIFY(BUILD_SOURCEVERSION-CHECK_SOURCEVERSION-));
 
 #if defined(_DEBUG)
-static const PTCHAR ProgramConfig = _T("Debug");
+static const wchar_t* ProgramConfig = _T("Debug");
 #elif defined(NDEBUG)
-static const PTCHAR ProgramConfig = _T("Release");
+static const wchar_t* ProgramConfig = _T("Release");
 #else
-static const PTCHAR ProgramConfig = _T("Undefined");
+static const wchar_t* ProgramConfig = _T("Undefined");
 #endif
 #if defined(_M_IX86)
-static const PTCHAR ProgramPlatform = _T("X86");
+static const wchar_t* ProgramPlatform = _T("X86");
 #elif defined(_M_X64)
-static const PTCHAR ProgramPlatform = _T("X64");
+static const wchar_t* ProgramPlatform = _T("X64");
 #else
-static const PTCHAR ProgramPlatform = _T("Undefined");
+static const wchar_t* ProgramPlatform = _T("Undefined");
 #endif
