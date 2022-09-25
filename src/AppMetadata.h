@@ -8,7 +8,7 @@
 static const wchar_t* Check_SourceVersion = _T(STRINGIFY(-CHECK_SOURCEVERSION-));
 
 static const wchar_t* ProgramName = _T("MountISO");
-static const wchar_t* ProgramVersion = _T("1.4.0");
+static const wchar_t* ProgramVersion = _T("1.4.1");
 static const wchar_t* GitHash = _T(STRINGIFY(BUILD_SOURCEVERSION-CHECK_SOURCEVERSION-));
 
 #if defined(_DEBUG)
